@@ -463,6 +463,7 @@ body {
     gap: 3rem;
     align-items: start;
     transform-style: preserve-3d;
+    font-family: "Tajawal", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .form-group {
