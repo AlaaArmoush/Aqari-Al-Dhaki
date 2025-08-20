@@ -463,7 +463,6 @@ body {
     gap: 3rem;
     align-items: start;
     transform-style: preserve-3d;
-    font-family: "Tajawal", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .form-group {
@@ -662,6 +661,7 @@ select {
     overflow: hidden;
     transform-style: preserve-3d;
     backdrop-filter: blur(10px);
+    font-family: "Tajawal", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .predict-btn::before {
