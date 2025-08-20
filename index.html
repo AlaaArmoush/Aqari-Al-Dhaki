@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عقاري الذكي</title>
+    <link rel="stylesheet" href="styles.css?v=1.1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="light-mode" data-lang="en">
+
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21h18"/>
+                        <path d="M5 21V7l8-4v18"/>
+                        <path d="M19 21V11l-6-4"/>
+                    </svg>
+                </div>
+                <span class="logo-text">عقاري الذكي</span>
+            </div>
+
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="language-toggle" id="langToggle">
+                    <span class="lang-text" data-en="عربي" data-ar="English">English</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="magical-background">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+        <div class="floating-orb orb-4"></div>
+        <div class="floating-orb orb-5"></div>
+
+        <div class="geometric-shape shape-1"></div>
+        <div class="geometric-shape shape-2"></div>
+        <div class="geometric-shape shape-3"></div>
+
+        <div class="magic-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title" data-en="Your Smart Compass for the Palestinian Real Estate Market" data-ar="بوصلتك الذكية لسوق العقارات الفلسطيني">
+                Your Smart Compass for the Palestinian Real Estate Market
+            </h1>
+            <p class="hero-subtitle" data-en="Instantly unlock the estimated market value of any apartment, backed by real data from across Palestine" data-ar="اكتشف القيمة السوقية التقديرية لأي شقة فوراً، بناءً على بيانات من مختلف أنحاء فلسطين.">
+                Instantly unlock the estimated market value of any apartment, backed by real-time data from across Palestine.
+            </p>
+        </div>
+    </div>
+</section>
+
+<main class="main">
+    <div class="container">
+        <div class="prediction-interface">
+            <div class="input-section">
+                <div class="section-header">
+                    <h2 data-en="Property Details" data-ar="تفاصيل العقار">Property Details</h2>
+                    <p data-en="Enter your property specifications below" data-ar="أدخل مواصفات العقار أدناه">Enter your property specifications below</p>
+                </div>
+
+                <form class="property-form" id="propertyForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label data-en="Building Area (m²)" data-ar="مساحة البناء (م²)">Building Area (m²)</label>
+                            <input type="number" id="buildingArea" placeholder="" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Building Age (years)" data-ar="عمر البناء (سنوات)">Building Age (years)</label>
+                            <input type="number" id="buildingAge" placeholder="" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Number of Rooms" data-ar="عدد الغرف">Number of Rooms</label>
+                            <input type="number" id="rooms" placeholder="" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Number of Bathrooms" data-ar="عدد الحمامات">Number of Bathrooms</label>
+                            <input type="number" id="bathrooms" placeholder="" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Floor" data-ar="الطابق">Floor</label>
+                            <input type="number" id="floor" placeholder="" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Payment Method" data-ar="طريقة الدفع">Payment Method</label>
+                            <select id="paymentMethod" required>
+                                <option value="" data-en="Select payment method" data-ar="اختر طريقة الدفع">Select payment method</option>
+                                <option value="cash" data-en="Cash" data-ar="نقدي">Cash</option>
+                                <option value="mortgage" data-en="Mortgage" data-ar="رهن عقاري">Mortgage</option>
+                                <option value="installments" data-en="Installments" data-ar="أقساط">Installments</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label data-en="City" data-ar="المدينة">City</label>
+                            <select id="city" required>
+                                <option value="" data-en="Select city" data-ar="اختر المدينة">Select city</option>
+                                <option value="jerusalem" data-en="Jerusalem" data-ar="القدس">Jerusalem</option>
+                                <option value="ramallah" data-en="Ramallah" data-ar="رام الله">Ramallah</option>
+                                <option value="bethlehem" data-en="Bethlehem" data-ar="بيت لحم">Bethlehem</option>
+                                <option value="nablus" data-en="Nablus" data-ar="نابلس">Nablus</option>
+                                <option value="hebron" data-en="Hebron" data-ar="الخليل">Hebron</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="features-section">
+                        <h3 data-en="Property Features" data-ar="مميزات العقار">Property Features</h3>
+                        <div class="features-grid">
+                            <div class="feature-toggle">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="furnished">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text" data-en="Furnished" data-ar="مفروشة">Furnished</span>
+                                </label>
+                            </div>
+
+                            <div class="feature-toggle">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="parking">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text" data-en="Parking" data-ar="موقف سيارات">Parking</span>
+                                </label>
+                            </div>
+
+                            <div class="feature-toggle">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="garden">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text" data-en="Property Mortgaged" data-ar="العقار مرهون">Property Mortgaged</span>
+                                </label>
+                            </div>
+
+                            <div class="feature-toggle">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="elevator">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text" data-en="Elevator" data-ar="مصعد">Elevator</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="predict-btn" id="predictBtn">
+                        <span class="btn-content">
+                            <span class="btn-text" data-en="Predict Price" data-ar="تقدير السعر">Predict Price</span>
+                        </span>
+                        <div class="loading-spinner" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </form>
+            </div>
+
+            <div class="results-section">
+                <div class="results-card" id="resultsCard">
+                    <div class="results-header">
+                        <h3 data-en="Predicted Price" data-ar="السعر المتوقع">Predicted Price</h3>
+                    </div>
+
+                    <div class="price-display" id="priceDisplay">
+                        <div class="price-value">
+                            <span class="currency">₪</span>
+                            <span class="amount" id="predictedPrice">---,---</span>
+                        </div>
+                        <p class="price-description" data-en="This estimate is based on current market data and property features" data-ar="هذا التقدير مبني على بيانات السوق الحالية ومميزات العقار">
+                            This estimate is based on current market data and property features
+                        </p>
+                    </div>
+
+                    <div class="price-breakdown" id="priceBreakdown" style="display: none;">
+                        <h4 data-en="Price Factors" data-ar="عوامل السعر">Price Factors</h4>
+                        <div class="factor-list">
+                            <div class="factor-item">
+                                <span data-en="Location" data-ar="الموقع">Location</span>
+                                <span class="factor-impact">+15%</span>
+                            </div>
+                            <div class="factor-item">
+                                <span data-en="Size" data-ar="المساحة">Size</span>
+                                <span class="factor-impact">+25%</span>
+                            </div>
+                            <div class="factor-item">
+                                <span data-en="Age" data-ar="العمر">Age</span>
+                                <span class="factor-impact">-5%</span>
+                            </div>
+                            <div class="factor-item">
+                                <span data-en="Features" data-ar="المميزات">Features</span>
+                                <span class="factor-impact">+8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21h18"/>
+                        <path d="M5 21V7l8-4v18"/>
+                        <path d="M19 21V11l-6-4"/>
+                    </svg>
+                </div>
+                <span class="logo-text">عقاري الذكي</span>
+            </div>
+            <p class="footer-description" data-en="mpowering smarter real estate decisions across Palestine." data-ar="نحو قرارات عقارية أذكى في فلسطين.">
+                AI-powered real estate price prediction platform
+            </p>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
