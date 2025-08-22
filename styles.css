@@ -180,7 +180,7 @@ body {
     height: 3px;
     background: radial-gradient(circle, rgba(0, 109, 119, 0.8), transparent);
     border-radius: 50%;
-    animation: magicalParticles 15s linear infinite;
+    animation: magicalParticles 20s linear infinite;
     transform-style: preserve-3d;
 }
 
