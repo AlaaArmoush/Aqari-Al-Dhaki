@@ -160,86 +160,91 @@ class RealEstatePredictorApp {
     }
 
     validateForm(data) {
-        const requiredFields = ["buildingArea", "buildingAge", "rooms", "bathrooms", "floor", "paymentMethod", "city"]
-        return requiredFields.every((field) => data[field] !== "" && data[field] !== null && !isNaN(data[field]))
+    const numericFields = ["buildingArea", "buildingAge", "rooms", "bathrooms", "floor"];
+    const stringFields = ["paymentMethod", "city"];
+
+    const numericValid = numericFields.every(field => data[field] !== "" && data[field] !== null && !isNaN(data[field]));
+    const stringValid = stringFields.every(field => data[field] !== "" && data[field] !== null);
+
+    return numericValid && stringValid;
+}
+
+ async predictPrice(data) {
+    const predictBtn = document.getElementById("predictBtn");
+    const resultsCard = document.getElementById("resultsCard");
+    const priceDisplay = document.getElementById("predictedPrice");
+    const priceBreakdown = document.getElementById("priceBreakdown");
+
+    predictBtn.classList.add("loading");
+    predictBtn.disabled = true;
+    resultsCard.classList.add("loading");
+
+    try {
+        // Because frontend and backend are on the same Space, relative path works:
+        const API_URL = "/predict";
+
+        // Map UI → backend expected Arabic keys with underscores
+        const payload = {
+            "عدد_الغرف": data.rooms,
+            "عدد_الحمامات": data.bathrooms,
+            "مفروشة": data.furnished ? 1 : 0,
+            "مساحة_البناء": data.buildingArea,
+            "الطابق": data.floor,
+            "عمر_البناء": data.buildingAge,
+            "العقار_مرهون": data.garden ? 1 : 0,  // you labeled it "Property Mortgaged"
+            "طريقة_الدفع": this.mapPaymentMethod(data.paymentMethod),
+            "مصعد": data.elevator ? 1 : 0,
+            "موقف_سيارات": data.parking ? 1 : 0,  // not used by model, but sent anyway
+            "المدينة": this.mapCity(data.city),
+        };
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error("API error");
+        const result = await response.json();
+
+        const prediction = result.predicted_price;
+        priceDisplay.textContent = this.formatPrice(prediction);
+        this.updatePriceBreakdown(data);
+        priceBreakdown.style.display = "block";
+
+        resultsCard.style.transform = "scale(1.02)";
+        setTimeout(() => { resultsCard.style.transform = "scale(1)"; }, 200);
+    } catch (error) {
+        this.showError("Failed to predict price. Please try again.");
+        console.error(error);
+    } finally {
+        predictBtn.classList.remove("loading");
+        predictBtn.disabled = false;
+        resultsCard.classList.remove("loading");
     }
+}
 
-    async predictPrice(data) {
-        const predictBtn = document.getElementById("predictBtn");
-        const resultsCard = document.getElementById("resultsCard");
-        const priceDisplay = document.getElementById("predictedPrice");
-        const priceBreakdown = document.getElementById("priceBreakdown");
-
-        predictBtn.classList.add("loading");
-        predictBtn.disabled = true;
-        resultsCard.classList.add("loading");
-
-        try {
-            // Because frontend and backend are on the same Space, relative path works:
-            const API_URL = "/predict";
-
-            // Map UI → backend expected Arabic keys with underscores
-            const payload = {
-                "عدد_الغرف": data.rooms,
-                "عدد_الحمامات": data.bathrooms,
-                "مفروشة": data.furnished ? 1 : 0,
-                "مساحة_البناء": data.buildingArea,
-                "الطابق": data.floor,
-                "عمر_البناء": data.buildingAge,
-                "العقار_مرهون": data.garden ? 1 : 0,  // you labeled it "Property Mortgaged"
-                "طريقة_الدفع": this.mapPaymentMethod(data.paymentMethod),
-                "مصعد": data.elevator ? 1 : 0,
-                "موقف_سيارات": data.parking ? 1 : 0,  // not used by model, but sent anyway
-                "المدينة": this.mapCity(data.city),
-            };
-
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) throw new Error("API error");
-            const result = await response.json();
-
-            const prediction = result.predicted_price;
-            priceDisplay.textContent = this.formatPrice(prediction);
-            this.updatePriceBreakdown(data);
-            priceBreakdown.style.display = "block";
-
-            resultsCard.style.transform = "scale(1.02)";
-            setTimeout(() => { resultsCard.style.transform = "scale(1)"; }, 200);
-        } catch (error) {
-            this.showError("Failed to predict price. Please try again.");
-            console.error(error);
-        } finally {
-            predictBtn.classList.remove("loading");
-            predictBtn.disabled = false;
-            resultsCard.classList.remove("loading");
-        }
+mapPaymentMethod(method) {
+    switch (method) {
+        case "cash": return 0;
+        case "mortgage": return 1;
+        case "installments": return 2;
+        default: return 0;
     }
+}
 
-    mapPaymentMethod(method) {
-        switch (method) {
-            case "cash": return 0;
-            case "mortgage": return 1;
-            case "installments": return 2;
-            default: return 0;
-        }
+mapCity(code) {
+    switch (code) {
+        case "jerusalem": return "القدس";
+        case "ramallah": return "رام الله";
+        case "bethlehem": return "بيت لحم";
+        case "nablus": return "نابلس";
+        case "hebron": return "الخليل";
+        case "jenin": return "جنين";
+        case "tulkarem": return "طولكرم";
+        default: return "أخرى";
     }
-
-    mapCity(code) {
-        switch (code) {
-            case "jerusalem": return "القدس";
-            case "ramallah": return "رام الله";
-            case "bethlehem": return "بيت لحم";
-            case "nablus": return "نابلس";
-            case "hebron": return "الخليل";
-            case "jenin": return "جنين";
-            case "tulkarem": return "طولكرم";
-            default: return "أخرى";
-        }
-    }
+}
 
     calculateBasePrice(data) {
         const cityMultipliers = {

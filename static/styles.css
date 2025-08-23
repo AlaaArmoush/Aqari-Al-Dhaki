@@ -180,7 +180,7 @@ body {
     height: 3px;
     background: radial-gradient(circle, rgba(0, 109, 119, 0.8), transparent);
     border-radius: 50%;
-    animation: magicalParticles 20s linear infinite;
+    animation: magicalParticles 15s linear infinite;
     transform-style: preserve-3d;
 }
 
@@ -524,15 +524,21 @@ select:hover {
 select {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.75rem center;
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
     padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
 }
 
 .dark-mode select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    cursor: pointer;
+    appearance: none;
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e8eaed' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
 }
 
 .form-grid {
@@ -661,7 +667,7 @@ select {
     overflow: hidden;
     transform-style: preserve-3d;
     backdrop-filter: blur(10px);
-    font-family: "Tajawal", -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: "Tajawal", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .predict-btn::before {
