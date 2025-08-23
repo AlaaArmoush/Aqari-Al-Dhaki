@@ -5,3 +5,4 @@ numpy
 joblib
 xgboost
 scikit-learn
+shap

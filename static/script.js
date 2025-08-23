@@ -296,7 +296,12 @@ mapCity(code) {
     }
 
     formatPrice(price) {
-        return price.toLocaleString("en-US")
+        const rounded = Math.round(price);
+        if (this.currentLang === "ar") {
+            return rounded.toLocaleString("ar-EG");
+        } else {
+            return rounded.toLocaleString("en-US");
+        }
     }
 
     showError(message) {

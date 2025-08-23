@@ -35,11 +35,12 @@ app = FastAPI(title="Aqariy Smart – Price Prediction")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # safe because we host frontend + api together; restrict if needed
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Serve your static frontend at the root
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -48,15 +49,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 class PredictIn(BaseModel):
     عدد_الغرف: int
     عدد_الحمامات: int
-    مفروشة: int                   # 0/1
+    مفروشة: int                   
     مساحة_البناء: float
     الطابق: int
     عمر_البناء: int
-    العقار_مرهون: int             # 0/1
-    طريقة_الدفع: int              # 0=cash,1=mortgage,2=installments
-    مصعد: int                     # 0/1
-    موقف_سيارات: int | None = 0  # optional; ignored by model
-    المدينة: str                  # Arabic city name, e.g. "رام الله" , "نابلس" ...
+    العقار_مرهون: int             
+    طريقة_الدفع: int              
+    مصعد: int                    
+    موقف_سيارات: int | None = 0  
+    المدينة: str              
 
 def map_building_age(age: int) -> int:
     if age == 0:
@@ -104,3 +105,10 @@ def predict(payload: PredictIn):
         return {"predicted_price": float(np.round(y_pred, 2))}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+
+from fastapi.responses import FileResponse
+
+@app.get("/")
+def root():
+    return FileResponse("static/index.html")
