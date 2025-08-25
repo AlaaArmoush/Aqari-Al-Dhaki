@@ -1,7 +1,8 @@
 class RealEstatePredictorApp {
     constructor() {
         this.currentLang = "en"
-        this.currentTheme = "light"
+        this.currentTheme = "dark"
+        this.lastPredictedPrice = null;
         this.translations = {
             en: {},
             ar: {},
@@ -36,6 +37,9 @@ class RealEstatePredictorApp {
         inputs.forEach((input) => {
             input.addEventListener("input", () => this.validateInput(input))
         })
+
+        const judgePriceBtn = document.getElementById("judgePriceBtn");
+        judgePriceBtn.addEventListener("click", () => this.judgePrice());
     }
 
     toggleTheme() {
@@ -192,6 +196,11 @@ class RealEstatePredictorApp {
     const priceDisplay = document.getElementById("predictedPrice");
     const priceBreakdown = document.getElementById("priceBreakdown");
 
+
+    document.getElementById("compareListedPrice").style.display = "none";
+    document.getElementById("judgeResult").style.display = "none";
+    document.getElementById("listedPriceInput").value = "";
+
     predictBtn.classList.add("loading");
     predictBtn.disabled = true;
     resultsCard.classList.add("loading");
@@ -228,6 +237,8 @@ class RealEstatePredictorApp {
         this.updatePriceBreakdown(result.factors);
         priceBreakdown.style.display = "block";
 
+        document.getElementById("compareListedPrice").style.display = "block";
+
         resultsCard.style.transform = "scale(1.02)";
         setTimeout(() => { resultsCard.style.transform = "scale(1)"; }, 200);
     } catch (error) {
@@ -238,6 +249,60 @@ class RealEstatePredictorApp {
         predictBtn.disabled = false;
         resultsCard.classList.remove("loading");
     }
+}
+
+judgePrice() {
+    const listedPriceInput = document.getElementById("listedPriceInput");
+    const judgeResultEl = document.getElementById("judgeResult");
+    const listedPrice = parseFloat(listedPriceInput.value);
+
+    if (!listedPrice || isNaN(listedPrice) || !this.lastPredictedPrice) {
+        judgeResultEl.textContent = this.currentLang === 'en' ? "Please enter a valid listed price." : "الرجاء إدخال سعر صحيح.";
+        judgeResultEl.style.color = "var(--error-color)";
+        judgeResultEl.style.display = "block";
+        return;
+    }
+
+    const predictedPrice = this.lastPredictedPrice;
+    const difference = ((listedPrice - predictedPrice) / predictedPrice) * 100;
+    const absDifference = Math.abs(difference);
+
+    let message = "";
+    let color = "var(--success-color)";
+
+    if (this.currentLang === 'ar') {
+        if (difference > 15) {
+            message = `يبدو السعر مبالغ فيه بنسبة ${absDifference.toFixed(0)}% تقريبًا.`;
+            color = "var(--error-color)";
+        } else if (difference > 5) {
+            message = `السعر أعلى قليلًا من القيمة السوقية المقدرة.`;
+            color = "var(--warning-color)";
+        } else if (difference >= -5) {
+            message = `يبدو سعرًا عادلًا ويتماشى مع تقديرات السوق.`;
+        } else if (difference >= -15) {
+            message = `صفقة جيدة! السعر أقل من القيمة السوقية المقدرة.`;
+        } else {
+            message = `صفقة ممتازة! السعر أقل بكثير من القيمة السوقية بنسبة ${absDifference.toFixed(0)}% تقريبًا.`;
+        }
+    } else { // English
+        if (difference > 15) {
+            message = `This seems overpriced by about ${absDifference.toFixed(0)}%.`;
+            color = "var(--error-color)";
+        } else if (difference > 5) {
+            message = `Slightly above the estimated market value.`;
+            color = "var(--warning-color)";
+        } else if (difference >= -5) {
+            message = `This looks like a fair price, aligned with market estimates.`;
+        } else if (difference >= -15) {
+            message = `Good deal! This price is below the estimated market value.`;
+        } else {
+            message = `Excellent deal! Priced well below market value by about ${absDifference.toFixed(0)}%.`;
+        }
+    }
+
+    judgeResultEl.textContent = message;
+    judgeResultEl.style.color = color;
+    judgeResultEl.style.display = "block";
 }
 
 mapPaymentMethod(method) {
