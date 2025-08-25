@@ -2,7 +2,7 @@
 .venv
 apartments.csv
 apartments_final.csv
-model/*.pkl
 __pycache__/
 *.py[cod]
 *$py.class
+model/*.pkl
