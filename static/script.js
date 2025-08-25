@@ -144,19 +144,37 @@ class RealEstatePredictorApp {
     }
 
     collectFormData() {
-        return {
-            buildingArea: Number.parseFloat(document.getElementById("buildingArea").value),
-            buildingAge: Number.parseInt(document.getElementById("buildingAge").value),
-            rooms: Number.parseInt(document.getElementById("rooms").value),
-            bathrooms: Number.parseInt(document.getElementById("bathrooms").value),
-            floor: Number.parseInt(document.getElementById("floor").value),
-            paymentMethod: document.getElementById("paymentMethod").value,
-            city: document.getElementById("city").value,
-            furnished: document.getElementById("furnished").checked,
-            parking: document.getElementById("parking").checked,
-            garden: document.getElementById("garden").checked,
+        const rawFloor = document.getElementById("floor").value.trim();
+        const roof = document.getElementById("roof").checked;
+
+        let floor;
+        if (roof) {
+            floor = 11;
+        } else {
+            switch (rawFloor.toUpperCase()) {
+                case "B": floor = -2; break;
+                case "P": floor = -1; break;
+                case "GF": floor = 0; break;
+                default:
+                    floor = parseInt(rawFloor, 10);
+                    if (isNaN(floor)) floor = 0; // fallback
+                    if (floor > 10) floor = 10;
+            }
         }
-    }
+
+    return {
+        buildingArea: Number.parseFloat(document.getElementById("buildingArea").value),
+        buildingAge: Number.parseInt(document.getElementById("buildingAge").value),
+        rooms: Number.parseInt(document.getElementById("rooms").value),
+        bathrooms: Number.parseInt(document.getElementById("bathrooms").value),
+        floor: floor,
+        paymentMethod: document.getElementById("paymentMethod").value,
+        city: document.getElementById("city").value,
+        furnished: document.getElementById("furnished").checked,
+        parking: document.getElementById("parking").checked,
+        garden: document.getElementById("garden").checked,
+    };
+}
 
     validateForm(data) {
     const numericFields = ["buildingArea", "buildingAge", "rooms", "bathrooms", "floor"];
