@@ -39,7 +39,6 @@ TRAIN_KEYS = {
 
 CITY_PREFIX = "المدينة_"
 
-# ---------- FastAPI ----------
 app = FastAPI(title="Aqariy Smart – Price Prediction")
 
 app.add_middleware(
@@ -108,29 +107,63 @@ def build_model_input(payload: PredictIn) -> pd.DataFrame:
     df = df.reindex(columns=feature_columns, fill_value=0)
     return df
 
+import shap
+
+explainer = shap.TreeExplainer(final_model)
+
+FEATURE_GROUPS = {
+    "المساحة و الغرف": ["مساحة البناء", "عدد الغرف"],
+    "الحمامات": ["عدد الحمامات"],
+    "حالة العقار": ["مفروشة", "عمر البناء", "العقار مرهون"],
+    "الدفع": ["طريقة الدفع"],
+    "الطابق": ["الطابق"],
+    "المدينة": [col for col in feature_columns if col.startswith(CITY_PREFIX)],
+}
+
+def group_shap_values(shap_values: np.ndarray, input_df: pd.DataFrame):
+    feature_shap = dict(zip(input_df.columns, shap_values))
+    grouped = {}
+
+    for group_name, features in FEATURE_GROUPS.items():
+        if group_name == "المدينة":
+            # sum only the active city column (value=1 in input_df)
+            active_cities = [f for f in features if input_df.iloc[0][f] == 1]
+            grouped[group_name] = sum(feature_shap.get(f, 0) for f in active_cities)
+        else:
+            grouped[group_name] = sum(feature_shap.get(f, 0) for f in features)
+
+    total_abs = sum(abs(v) for v in grouped.values()) or 1e-9
+    ranked = {k: round((v / total_abs) * 100, 2) for k, v in grouped.items()}
+
+    # sort by absolute value descending
+    ranked = dict(sorted(ranked.items(), key=lambda x: abs(x[1]), reverse=True))
+
+    # keep only top 4
+    top_ranked = dict(list(ranked.items())[:4])
+    return top_ranked
+
 
 @app.post("/predict")
 def predict(payload: PredictIn):
     try:
         df_input = build_model_input(payload)
-
-        try:
-            y_pred = final_model.predict(df_input)[0]
-        except ValueError as ve:
-            logger.exception("Prediction failed due to feature mismatch")
-            raise HTTPException(status_code=400, detail=f"Model feature mismatch: {ve}")
+        y_pred = final_model.predict(df_input)[0]
 
         if payload.موقف_سيارات:
-            try:
-                y_pred = y_pred * 1.011
-            except Exception:
-                logger.exception("Parking adjustment failed")
+            y_pred *= 1.011
 
-        return {"predicted_price": float(np.round(float(y_pred), 2))}
-    except HTTPException:
-        raise
+        shap_values = explainer(df_input)
+        contribs = shap_values.values[0]
+
+        grouped = group_shap_values(contribs, df_input)
+        # ensure all values are native floats
+        grouped = {k: float(round(v, 2)) for k, v in grouped.items()}
+
+        return {
+            "predicted_price": float(np.round(y_pred, 2)),
+            "factors": grouped,
+        }
     except Exception as e:
-        logger.exception("Unexpected error in /predict")
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -142,8 +175,6 @@ def metadata():
         "city_categories": city_categories
     })
 
-
-from fastapi.responses import FileResponse
 
 @app.get("/")
 def root():

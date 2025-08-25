@@ -225,7 +225,7 @@ class RealEstatePredictorApp {
 
         const prediction = result.predicted_price;
         priceDisplay.textContent = this.formatPrice(prediction);
-        this.updatePriceBreakdown(data);
+        this.updatePriceBreakdown(result.factors);
         priceBreakdown.style.display = "block";
 
         resultsCard.style.transform = "scale(1.02)";
@@ -298,17 +298,33 @@ mapCity(code) {
         return Math.round(adjustedPrice)
     }
 
-    updatePriceBreakdown(data) {
-        const factors = document.querySelectorAll(".factor-impact")
-        const impacts = ["+15%", "+25%", "-5%", "+8%"]
+    updatePriceBreakdown(factors) {
+        const factorList = document.querySelector(".factor-list");
+        factorList.innerHTML = "";
 
-        factors.forEach((factor, index) => {
-            if (impacts[index]) {
-                factor.textContent = impacts[index]
-                factor.style.color = impacts[index].startsWith("+") ? "var(--success-color)" : "var(--error-color)"
-            }
-        })
+        // Convert object → array
+        const factorArray = Object.entries(factors).map(([feature, impact]) => ({ feature, impact }));
+
+        factorArray.forEach(f => {
+            const div = document.createElement("div");
+            div.classList.add("factor-item");
+
+            const name = document.createElement("span");
+            name.textContent = f.feature;
+
+            const impact = document.createElement("span");
+            const sign = f.impact >= 0 ? "+" : "";
+            impact.textContent = `${sign}${f.impact.toFixed(2)}%`;
+            impact.classList.add("factor-impact");
+            impact.style.color = f.impact >= 0 ? "var(--success-color)" : "var(--error-color)";
+
+            div.appendChild(name);
+            div.appendChild(impact);
+            factorList.appendChild(div);
+        });
     }
+
+
 
     formatPrice(price) {
         const rounded = Math.round(price);
