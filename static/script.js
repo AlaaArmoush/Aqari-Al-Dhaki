@@ -148,7 +148,7 @@ class RealEstatePredictorApp {
         const roof = document.getElementById("roof").checked;
 
         let floor;
-        if (roof) {
+        if (roof && rawFloor > 2) {
             floor = 11;
         } else {
             switch (rawFloor.toUpperCase()) {
@@ -301,8 +301,6 @@ mapCity(code) {
     updatePriceBreakdown(factors) {
         const factorList = document.querySelector(".factor-list");
         factorList.innerHTML = "";
-
-        // Convert object → array
         const factorArray = Object.entries(factors).map(([feature, impact]) => ({ feature, impact }));
 
         factorArray.forEach(f => {
