@@ -155,7 +155,6 @@ class RealEstatePredictorApp {
             furnished: document.getElementById("furnished").checked,
             parking: document.getElementById("parking").checked,
             garden: document.getElementById("garden").checked,
-            elevator: document.getElementById("elevator").checked,
         }
     }
 
@@ -193,7 +192,6 @@ class RealEstatePredictorApp {
             "عمر_البناء": data.buildingAge,
             "العقار_مرهون": data.garden ? 1 : 0,  // you labeled it "Property Mortgaged"
             "طريقة_الدفع": this.mapPaymentMethod(data.paymentMethod),
-            "مصعد": data.elevator ? 1 : 0,
             "موقف_سيارات": data.parking ? 1 : 0,  // not used by model, but sent anyway
             "المدينة": this.mapCity(data.city),
         };
@@ -274,7 +272,6 @@ mapCity(code) {
         if (data.furnished) adjustedPrice *= 1.08
         if (data.parking) adjustedPrice *= 1.05
         if (data.garden) adjustedPrice *= 1.12
-        if (data.elevator) adjustedPrice *= 1.06
 
         if (data.paymentMethod === "cash") {
             adjustedPrice *= 0.95

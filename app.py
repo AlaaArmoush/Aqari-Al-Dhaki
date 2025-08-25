@@ -1,20 +1,30 @@
 import os
 import joblib
+import logging
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from fastapi.responses import FileResponse, JSONResponse
+from pydantic import BaseModel, Field, conint, confloat
 
 MODEL_DIR = "model"
 MODEL_PATH = os.path.join(MODEL_DIR, "final_model.pkl")
 FEATURES_PATH = os.path.join(MODEL_DIR, "feature_columns.pkl")
 CITIES_PATH = os.path.join(MODEL_DIR, "city_categories.pkl")
 
-final_model = joblib.load(MODEL_PATH)
-feature_columns = joblib.load(FEATURES_PATH)        
-city_categories = joblib.load(CITIES_PATH)         
+logger = logging.getLogger("uvicorn.error")
+
+try:
+    final_model = joblib.load(MODEL_PATH)
+    feature_columns = joblib.load(FEATURES_PATH)
+    city_categories = joblib.load(CITIES_PATH)
+except Exception as e:
+    logger.exception("Failed to load model or metadata")
+    raise RuntimeError(f"Failed to load model or metadata: {e}")
 
 TRAIN_KEYS = {
     "عدد_الغرف": "عدد الغرف",
@@ -25,7 +35,6 @@ TRAIN_KEYS = {
     "عمر_البناء": "عمر البناء",
     "العقار_مرهون": "العقار مرهون",
     "طريقة_الدفع": "طريقة الدفع",
-    "مصعد": "مصعد",
 }
 
 CITY_PREFIX = "المدينة_"
@@ -35,29 +44,28 @@ app = FastAPI(title="Aqariy Smart – Price Prediction")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# Serve your static frontend at the root
-app.mount("/static", StaticFiles(directory="static"), name="static")
+if os.path.isdir("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 class PredictIn(BaseModel):
-    عدد_الغرف: int
-    عدد_الحمامات: int
-    مفروشة: int                   
-    مساحة_البناء: float
-    الطابق: int
-    عمر_البناء: int
-    العقار_مرهون: int             
-    طريقة_الدفع: int              
-    مصعد: int                    
-    موقف_سيارات: int | None = 0  
-    المدينة: str              
+    عدد_الغرف: conint(ge=1) = Field(..., description="عدد الغرف (>=1)")
+    عدد_الحمامات: conint(ge=1) = Field(..., description="عدد الحمامات (>=1)")
+    مفروشة: conint(ge=0, le=1) = Field(..., description="0/1")
+    مساحة_البناء: confloat(gt=0) = Field(..., description="مساحة البناء بالمتر المربع")
+    الطابق: int = Field(..., description="رقم الطابق (0=ground)")
+    عمر_البناء: conint(ge=0) = Field(..., description="عمر البناء (سنوات)")
+    العقار_مرهون: conint(ge=0, le=1) = Field(..., description="0/1")
+    طريقة_الدفع: int = Field(..., description="0=cash,1=mortgage,2=installments etc.")
+    موقف_سيارات: Optional[conint(ge=0, le=1)] = 0
+    المدينة: str = Field(..., description="اسم المدينة (Arabic)")
+
 
 def map_building_age(age: int) -> int:
     if age == 0:
@@ -70,45 +78,76 @@ def map_building_age(age: int) -> int:
         return 3
     elif 10 <= age <= 19:
         return 4
-    else:  # 20+
+    else:
         return 5
+
 
 def build_model_input(payload: PredictIn) -> pd.DataFrame:
     base = {
-        TRAIN_KEYS["عدد_الغرف"]: payload.عدد_الغرف,
-        TRAIN_KEYS["عدد_الحمامات"]: payload.عدد_الحمامات,
+        TRAIN_KEYS["عدد_الغرف"]: int(payload.عدد_الغرف),
+        TRAIN_KEYS["عدد_الحمامات"]: int(payload.عدد_الحمامات),
         TRAIN_KEYS["مفروشة"]: int(payload.مفروشة),
         TRAIN_KEYS["مساحة_البناء"]: float(payload.مساحة_البناء),
         TRAIN_KEYS["الطابق"]: int(payload.الطابق),
-        TRAIN_KEYS["عمر_البناء"]: map_building_age(int(payload.عمر_البناء)),  # <-- map to bin
+        TRAIN_KEYS["عمر_البناء"]: map_building_age(int(payload.عمر_البناء)),
         TRAIN_KEYS["العقار_مرهون"]: int(payload.العقار_مرهون),
         TRAIN_KEYS["طريقة_الدفع"]: int(payload.طريقة_الدفع),
-        TRAIN_KEYS["مصعد"]: int(payload.مصعد),
     }
 
     city_cols = {f"{CITY_PREFIX}{c}": 0 for c in city_categories}
+
     if payload.المدينة in city_categories:
         city_cols[f"{CITY_PREFIX}{payload.المدينة}"] = 1
+    else:
+        other_col = f"{CITY_PREFIX}أخرى"
+        if other_col in city_cols:
+            city_cols[other_col] = 1
 
     row = {**base, **city_cols}
     df = pd.DataFrame([row])
     df = df.reindex(columns=feature_columns, fill_value=0)
     return df
 
+
 @app.post("/predict")
 def predict(payload: PredictIn):
     try:
         df_input = build_model_input(payload)
-        y_pred = final_model.predict(df_input)[0]
+
+        try:
+            y_pred = final_model.predict(df_input)[0]
+        except ValueError as ve:
+            logger.exception("Prediction failed due to feature mismatch")
+            raise HTTPException(status_code=400, detail=f"Model feature mismatch: {ve}")
+
         if payload.موقف_سيارات:
-            y_pred *= 1.011 
-        return {"predicted_price": float(np.round(y_pred, 2))}
+            try:
+                y_pred = y_pred * 1.011
+            except Exception:
+                logger.exception("Parking adjustment failed")
+
+        return {"predicted_price": float(np.round(float(y_pred), 2))}
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.exception("Unexpected error in /predict")
         raise HTTPException(status_code=400, detail=str(e))
-    
+
+
+@app.get("/metadata")
+def metadata():
+    return JSONResponse({
+        "feature_columns_count": len(feature_columns),
+        "feature_columns": feature_columns,
+        "city_categories": city_categories
+    })
+
 
 from fastapi.responses import FileResponse
 
 @app.get("/")
 def root():
-    return FileResponse("static/index.html")
+    index_path = os.path.join("static", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "Aqariy Smart API is up. Frontend index.html not found."}
