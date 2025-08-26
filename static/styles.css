@@ -1384,3 +1384,17 @@ select {
     font-size: 0.95rem;
     color: var(--success-color);
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-primary);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--success-color); 
+}

@@ -316,19 +316,23 @@ displayJudgmentResult(result) {
             OVERPRICED: "This appears to be significantly overpriced compared to its expected market range.",
             FAIR_PRICE: "This price is within the fair market range.",
             GOOD_DEAL: "This looks like an excellent deal, priced below its typical market range.",
+            FAIR_LOW: "This price is a bit low compared to market value — could be fine, but worth double-checking.",
             SUSPICIOUSLY_UNDERPRICED: "This price is suspiciously low compared to the market range."
         },
         ar: {
             OVERPRICED: "يبدو أن السعر مبالغ فيه بشكل كبير مقارنة بالنطاق السوقي المتوقع.",
             FAIR_PRICE: "السعر ضمن النطاق العادل للسوق.",
-            GOOD_DEAL: "تبدو صفقة ممتازة، فالسعر أقل من النطاق السوقي المعتاد.",
+            GOOD_DEAL: "سعر ممتاز — أقل من المعتاد في السوق ويمثل صفقة جيدة.",
+            FAIR_LOW: "السعر أقل قليلاً من القيمة السوقية، قد يكون مقبولاً ولكن يستحق التحقق.",
             SUSPICIOUSLY_UNDERPRICED: "السعر منخفض بشكل مريب مقارنة بالنطاق السوقي."
         }
     };
 
+
     const colors = {
         OVERPRICED: '#d9534f',  
         FAIR_PRICE: '#f0ad4e',   
+        FAIR_LOW: '#f0ad4e',   
         GOOD_DEAL: '#5cb85c',   
         SUSPICIOUSLY_UNDERPRICED: '#d9534f' 
     };

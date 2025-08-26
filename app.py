@@ -218,15 +218,16 @@ def judge_price(payload: JudgeIn):
         price_mean = predicted_prices.mean()
 
         listed = payload.listed_price
-        if listed < price_min * 0.95:
+        if listed < max(price_min, price_mean * 0.7):
             judgment_key = "SUSPICIOUSLY_UNDERPRICED"
+        elif listed < price_mean * 0.85:  # a bit low, but not totally suspicious
+            judgment_key = "FAIR_LOW"
         elif listed < price_mean * 0.95:
             judgment_key = "GOOD_DEAL"
         elif listed <= price_max:
             judgment_key = "FAIR_PRICE"
         else:
             judgment_key = "OVERPRICED"
-
         return {
             "judgment_key": judgment_key,
             "predicted_mean": float(round(price_mean, 2)),
