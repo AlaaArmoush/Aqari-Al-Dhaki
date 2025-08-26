@@ -182,3 +182,57 @@ def root():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"message": "Aqariy Smart API is up. Frontend index.html not found."}
+
+
+
+class JudgeIn(PredictIn):
+    listed_price: confloat(gt=0) = Field(..., description="السعر المعروض من المستخدم")
+    
+@app.post("/judge_price")
+def judge_price(payload: JudgeIn):
+    try:
+        variants = []
+        # loop over all combinations
+        for rooms in range(1, 5):
+            for baths in range(1, 4):
+                for age in [0, 5, 9, 19, 20]:
+                    for floor in [0, 1, 2, 3, 4, 11]:
+                        for furnished in [0, 1]:
+                            for payment in [0, 1, 2]:
+                                for mortgaged in [0, 1]:
+                                    variant = payload.model_copy(deep=True)
+                                    variant.عدد_الغرف = rooms
+                                    variant.عدد_الحمامات = baths
+                                    variant.عمر_البناء = age
+                                    variant.الطابق = floor
+                                    variant.مفروشة = furnished
+                                    variant.طريقة_الدفع = payment
+                                    variant.العقار_مرهون = mortgaged
+                                    variants.append(build_model_input(variant))
+        
+        all_df = pd.concat(variants, ignore_index=True)
+        predicted_prices = final_model.predict(all_df)
+        
+        price_min = predicted_prices.min()
+        price_max = predicted_prices.max()
+        price_mean = predicted_prices.mean()
+
+        listed = payload.listed_price
+        if listed < price_min * 0.95:
+            judgment_key = "SUSPICIOUSLY_UNDERPRICED"
+        elif listed < price_mean * 0.95:
+            judgment_key = "GOOD_DEAL"
+        elif listed <= price_max:
+            judgment_key = "FAIR_PRICE"
+        else:
+            judgment_key = "OVERPRICED"
+
+        return {
+            "judgment_key": judgment_key,
+            "predicted_mean": float(round(price_mean, 2)),
+            "price_range": [float(round(price_min, 2)), float(round(price_max, 2))],
+        }
+
+    except Exception as e:
+        logger.exception(f"Error in /judge_price: {e}")
+        raise HTTPException(status_code=400, detail=str(e))

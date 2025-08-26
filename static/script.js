@@ -251,59 +251,96 @@ class RealEstatePredictorApp {
     }
 }
 
-judgePrice() {
+async judgePrice() {
     const listedPriceInput = document.getElementById("listedPriceInput");
     const judgeResultEl = document.getElementById("judgeResult");
     const listedPrice = parseFloat(listedPriceInput.value);
 
-    if (!listedPrice || isNaN(listedPrice) || !this.lastPredictedPrice) {
-        judgeResultEl.textContent = this.currentLang === 'en' ? "Please enter a valid listed price." : "الرجاء إدخال سعر صحيح.";
+    if (!listedPrice || isNaN(listedPrice)) {
+        judgeResultEl.textContent = this.currentLang === 'en' ? "Please enter a valid price." : "الرجاء إدخال سعر صحيح.";
         judgeResultEl.style.color = "var(--error-color)";
         judgeResultEl.style.display = "block";
         return;
     }
 
-    const predictedPrice = this.lastPredictedPrice;
-    const difference = ((listedPrice - predictedPrice) / predictedPrice) * 100;
-    const absDifference = Math.abs(difference);
+    judgeResultEl.textContent = this.currentLang === 'en' ? 'Analyzing...' : 'يتم التحليل...';
+    judgeResultEl.style.color = 'var(--text-secondary)';
+    judgeResultEl.style.display = 'block';
 
-    let message = "";
-    let color = "var(--success-color)";
+    const formData = this.collectFormData();
+    const payload = {
+        ...this.mapDataToBackend(formData),
+        listed_price: listedPrice
+    };
 
-    if (this.currentLang === 'ar') {
-        if (difference > 15) {
-            message = `يبدو السعر مبالغ فيه بنسبة ${absDifference.toFixed(0)}% تقريبًا.`;
-            color = "var(--error-color)";
-        } else if (difference > 5) {
-            message = `السعر أعلى قليلًا من القيمة السوقية المقدرة.`;
-            color = "var(--warning-color)";
-        } else if (difference >= -5) {
-            message = `يبدو سعرًا عادلًا ويتماشى مع تقديرات السوق.`;
-        } else if (difference >= -15) {
-            message = `صفقة جيدة! السعر أقل من القيمة السوقية المقدرة.`;
-        } else {
-            message = `صفقة ممتازة! السعر أقل بكثير من القيمة السوقية بنسبة ${absDifference.toFixed(0)}% تقريبًا.`;
-        }
-    } else { // English
-        if (difference > 15) {
-            message = `This seems overpriced by about ${absDifference.toFixed(0)}%.`;
-            color = "var(--error-color)";
-        } else if (difference > 5) {
-            message = `Slightly above the estimated market value.`;
-            color = "var(--warning-color)";
-        } else if (difference >= -5) {
-            message = `This looks like a fair price, aligned with market estimates.`;
-        } else if (difference >= -15) {
-            message = `Good deal! This price is below the estimated market value.`;
-        } else {
-            message = `Excellent deal! Priced well below market value by about ${absDifference.toFixed(0)}%.`;
-        }
+    try {
+        const response = await fetch('/judge_price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error('Judgment API error');
+        const result = await response.json();
+
+        this.displayJudgmentResult(result);
+
+    } catch (error) {
+        console.error(error);
+        judgeResultEl.textContent = this.currentLang === 'en' ? 'Could not get analysis.' : 'تعذر الحصول على التحليل.';
+        judgeResultEl.style.color = 'var(--error-color)';
     }
+}
 
-    judgeResultEl.textContent = message;
-    judgeResultEl.style.color = color;
+mapDataToBackend(data) {
+    return {
+        "عدد_الغرف": data.rooms,
+        "عدد_الحمامات": data.bathrooms,
+        "مفروشة": data.furnished ? 1 : 0,
+        "مساحة_البناء": data.buildingArea,
+        "الطابق": data.floor,
+        "عمر_البناء": data.buildingAge,
+        "العقار_مرهون": data.garden ? 1 : 0,
+        "طريقة_الدفع": this.mapPaymentMethod(data.paymentMethod),
+        "موقف_سيارات": data.parking ? 1 : 0,
+        "المدينة": this.mapCity(data.city),
+    };
+}
+
+
+displayJudgmentResult(result) {
+    const judgeResultEl = document.getElementById("judgeResult");
+
+    const messages = {
+        en: {
+            OVERPRICED: "This appears to be significantly overpriced compared to its expected market range.",
+            FAIR_PRICE: "This price is within the fair market range.",
+            GOOD_DEAL: "This looks like an excellent deal, priced below its typical market range.",
+            SUSPICIOUSLY_UNDERPRICED: "This price is suspiciously low compared to the market range."
+        },
+        ar: {
+            OVERPRICED: "يبدو أن السعر مبالغ فيه بشكل كبير مقارنة بالنطاق السوقي المتوقع.",
+            FAIR_PRICE: "السعر ضمن النطاق العادل للسوق.",
+            GOOD_DEAL: "تبدو صفقة ممتازة، فالسعر أقل من النطاق السوقي المعتاد.",
+            SUSPICIOUSLY_UNDERPRICED: "السعر منخفض بشكل مريب مقارنة بالنطاق السوقي."
+        }
+    };
+
+    const colors = {
+        OVERPRICED: '#d9534f',  
+        FAIR_PRICE: '#f0ad4e',   
+        GOOD_DEAL: '#5cb85c',   
+        SUSPICIOUSLY_UNDERPRICED: '#d9534f' 
+    };
+
+    judgeResultEl.textContent = messages[this.currentLang][result.judgment_key] || '';
+    judgeResultEl.style.backgroundColor = colors[result.judgment_key] || '#777'; 
+    judgeResultEl.style.color = '#fff'; 
+    judgeResultEl.style.padding = "10px";
+    judgeResultEl.style.borderRadius = "8px";
     judgeResultEl.style.display = "block";
 }
+
 
 mapPaymentMethod(method) {
     switch (method) {
