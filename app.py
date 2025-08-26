@@ -192,7 +192,7 @@ class JudgeIn(PredictIn):
 def judge_price(payload: JudgeIn):
     try:
         variants = []
-        # loop over all combinations
+        # loop over all combinations to get the market range
         for rooms in range(1, 5):
             for baths in range(1, 4):
                 for age in [0, 5, 9, 19, 20]:
@@ -218,7 +218,14 @@ def judge_price(payload: JudgeIn):
         price_mean = predicted_prices.mean()
 
         listed = payload.listed_price
-        if listed < max(price_min, price_mean * 0.7):
+        # Predicted price for this specific user input
+        df_input = build_model_input(payload)
+        predicted_price = final_model.predict(df_input)[0]
+
+        # First rule: listed price within ±5% of predicted price for the user input
+        if predicted_price * 0.95 <= listed <= predicted_price * 1.05:
+            judgment_key = "GOOD_DEAL"
+        elif listed < max(price_min*0.9, price_mean * 0.7):
             judgment_key = "SUSPICIOUSLY_UNDERPRICED"
         elif listed < price_mean * 0.85:  # a bit low, but not totally suspicious
             judgment_key = "FAIR_LOW"
@@ -228,6 +235,7 @@ def judge_price(payload: JudgeIn):
             judgment_key = "FAIR_PRICE"
         else:
             judgment_key = "OVERPRICED"
+
         return {
             "judgment_key": judgment_key,
             "predicted_mean": float(round(price_mean, 2)),
