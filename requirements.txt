@@ -6,3 +6,10 @@ joblib
 xgboost
 scikit-learn
 shap
+matplotlib
+seaborn
+selenium
+beautifulsoup4
+arabic-reshaper
+python-bidi
+scipy
