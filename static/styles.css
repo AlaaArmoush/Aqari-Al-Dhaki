@@ -1194,10 +1194,6 @@ select {
         padding: 0.75rem;
     }
     
-    .results-section {
-        position: static;
-    }
-    
     .results-card {
         padding: 1.5rem;
         min-height: 300px;
