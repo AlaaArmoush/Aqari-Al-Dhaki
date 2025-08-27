@@ -915,14 +915,6 @@ select {
         gap: 2rem;
     }
 
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-
     .results-section {
         position: static;
     }
