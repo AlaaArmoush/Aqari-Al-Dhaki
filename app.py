@@ -222,18 +222,19 @@ def judge_price(payload: JudgeIn):
         df_input = build_model_input(payload)
         predicted_price = final_model.predict(df_input)[0]
 
-        if predicted_price * 0.73 <= listed <= predicted_price * 1.05:
-            judgment_key = "PREDICTED_PRICE"
-        elif listed < max(price_min*0.9, price_mean * 0.7):
+        if listed < max(price_min*0.9, price_mean * 0.7):
             judgment_key = "SUSPICIOUSLY_UNDERPRICED"
-        elif listed < price_mean * 0.85:  # a bit low, but not totally suspicious
+        elif listed < price_mean * 0.85:
             judgment_key = "FAIR_LOW"
+        elif predicted_price * 0.95 <= listed <= predicted_price * 1.05:
+            judgment_key = "PREDICTED_PRICE"
         elif listed < price_mean * 0.95:
             judgment_key = "GOOD_DEAL"
         elif listed <= price_max:
             judgment_key = "FAIR_PRICE"
         else:
             judgment_key = "OVERPRICED"
+
 
         return {
             "judgment_key": judgment_key,
