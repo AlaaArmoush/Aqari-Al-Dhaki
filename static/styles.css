@@ -1386,3 +1386,9 @@ select {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--success-color); 
 }
+
+.helper-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}

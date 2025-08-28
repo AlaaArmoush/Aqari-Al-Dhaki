@@ -1,6 +1,6 @@
 class RealEstatePredictorApp {
     constructor() {
-        this.currentLang = "en"
+        this.currentLang = "ar"
         this.currentTheme = "dark"
         this.lastPredictedPrice = null;
         this.translations = {
@@ -62,7 +62,7 @@ class RealEstatePredictorApp {
     }
 
     loadTheme() {
-        const savedTheme = localStorage.getItem("theme") || "light"
+        const savedTheme = localStorage.getItem("theme") || "dark"
         const body = document.body
         const themeIcon = document.querySelector(".theme-icon")
 
@@ -314,16 +314,18 @@ displayJudgmentResult(result) {
     const messages = {
         en: {
             OVERPRICED: "This appears to be significantly overpriced compared to its expected market range.",
-            FAIR_PRICE: "This price is within the fair market range.",
+            FAIR_PRICE: "This price is high within the expected market range.",
+            PREDICTED_PRICE: "This price is within the fair market range.",
             GOOD_DEAL: "This looks like an excellent deal, priced below its typical market range.",
             FAIR_LOW: "This price is a bit low compared to market value — could be fine, but worth double-checking.",
             SUSPICIOUSLY_UNDERPRICED: "This price is suspiciously low compared to the market range."
         },
         ar: {
             OVERPRICED: "يبدو أن السعر مبالغ فيه بشكل كبير مقارنة بالنطاق السوقي المتوقع.",
-            FAIR_PRICE: "السعر ضمن النطاق العادل للسوق.",
+            FAIR_PRICE: "السعر مرتفع و لكن ضمن النطاق المتوقع للسوق.",
+            PREDICTED_PRICE: "السعر ضمن النطاق العادل للسوق.",
             GOOD_DEAL: "سعر ممتاز — أقل من المعتاد في السوق ويمثل صفقة جيدة.",
-            FAIR_LOW: "السعر أقل قليلاً من القيمة السوقية، قد يكون مقبولاً ولكن يستحق التحقق.",
+            FAIR_LOW: "السعر أقل من النطاق السوقي المتوقع، قد يكون فرصة ولكن يستحق التحقق.",
             SUSPICIOUSLY_UNDERPRICED: "السعر منخفض بشكل مريب مقارنة بالنطاق السوقي."
         }
     };
@@ -332,6 +334,7 @@ displayJudgmentResult(result) {
     const colors = {
         OVERPRICED: '#d9534f',  
         FAIR_PRICE: '#f0ad4e',   
+        PREDICTED_PRICE: '#4fc3c7',
         FAIR_LOW: '#f0ad4e',   
         GOOD_DEAL: '#5cb85c',   
         SUSPICIOUSLY_UNDERPRICED: '#d9534f' 
@@ -444,7 +447,7 @@ mapCity(code) {
     }
 
     loadSavedLanguage() {
-        const savedLang = localStorage.getItem("language") || "en"
+        const savedLang = localStorage.getItem("language") || "ar"
         if (savedLang !== this.currentLang) {
             this.switchLanguage(savedLang)
         }

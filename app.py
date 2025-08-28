@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field, conint, confloat
 
 MODEL_DIR = "model"
-MODEL_PATH = os.path.join(MODEL_DIR, "final_model.pkl")
+MODEL_PATH = os.path.join(MODEL_DIR, "model_v2.pkl")
 FEATURES_PATH = os.path.join(MODEL_DIR, "feature_columns.pkl")
 CITIES_PATH = os.path.join(MODEL_DIR, "city_categories.pkl")
 
@@ -222,9 +222,8 @@ def judge_price(payload: JudgeIn):
         df_input = build_model_input(payload)
         predicted_price = final_model.predict(df_input)[0]
 
-        # First rule: listed price within ±5% of predicted price for the user input
-        if predicted_price * 0.95 <= listed <= predicted_price * 1.05:
-            judgment_key = "GOOD_DEAL"
+        if predicted_price * 0.73 <= listed <= predicted_price * 1.05:
+            judgment_key = "PREDICTED_PRICE"
         elif listed < max(price_min*0.9, price_mean * 0.7):
             judgment_key = "SUSPICIOUSLY_UNDERPRICED"
         elif listed < price_mean * 0.85:  # a bit low, but not totally suspicious
@@ -245,3 +244,7 @@ def judge_price(payload: JudgeIn):
     except Exception as e:
         logger.exception(f"Error in /judge_price: {e}")
         raise HTTPException(status_code=400, detail=str(e))
+    
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=7860, reload=True)

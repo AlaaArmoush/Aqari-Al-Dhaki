@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>عقاري الذكي</title>
-    <link rel="stylesheet" href="/static/styles.css?v=1.4">
+    <link rel="stylesheet" href="/static/styles.css?v=1.7">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="icon" href="static/favicon.png" type="image/png">
 
 </head>
-<body class="light-mode" data-lang="en">
+<body class="dark-mode" data-lang="ar">
 
 <header class="header">
     <div class="container">
@@ -227,11 +227,20 @@
 
                     <div class="compare-listed-price" id="compareListedPrice" style="display: none;">
                         <h4 data-en="Compare with Listed Price" data-ar="قارن مع السعر المعروض">Compare with Listed Price</h4>
-                        <div class="compare-input-group">
-                            <input type="number" id="listedPriceInput" placeholder="Enter listed price" data-en="Enter listed price" data-ar="أدخل السعر المعروض" min="0">
-                            <button id="judgePriceBtn" class="judge-btn" data-en="Judge" data-ar="تحقق">Judge</button>
-                        </div>
-                        <p class="judge-result" id="judgeResult" style="display: none;"></p>
+                    <div class="compare-input-group">
+                        <input type="number" id="listedPriceInput" placeholder="Enter listed price" 
+                            data-en="Enter listed price" data-ar="أدخل سعر شقتك للمقارنة بالسوق" min="0">
+                        <button id="judgePriceBtn" class="judge-btn" data-en="Judge" data-ar="تحقق">Judge</button>
+                    </div>
+
+                    <p class="helper-text" 
+                    data-en="For better accuracy, use both prediction and comparison with the market range." 
+                    data-ar="لنتيجة أدق، يُفضَّل استخدام المقارنة مع السوق بجانب التنبؤ.">
+                    For better accuracy, use both prediction and comparison with the market range.
+                    </p>
+
+                    <p class="judge-result" id="judgeResult" style="display: none;"></p>
+
                     </div>
                     
                 </div>
