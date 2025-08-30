@@ -230,6 +230,8 @@ def judge_price(payload: JudgeIn):
             judgment_key = "PREDICTED_PRICE"
         elif listed < price_mean * 0.95:
             judgment_key = "GOOD_DEAL"
+        elif listed < predicted_price:
+            judgment_key = "PREDICTED_PRICE" 
         elif listed <= price_max:
             judgment_key = "FAIR_PRICE"
         else:
