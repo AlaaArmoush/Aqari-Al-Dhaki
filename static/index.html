@@ -230,6 +230,7 @@
                     <div class="compare-input-group">
                         <input type="number" id="listedPriceInput" placeholder="Enter listed price" 
                             data-en="Enter listed price" data-ar="أدخل سعر شقتك للمقارنة بالسوق" min="0">
+                        <canvas id="marketCanvas" width="520" height="140" style="display:none; margin-top:12px; border-radius:8px;"></canvas>
                         <button id="judgePriceBtn" class="judge-btn" data-en="Judge" data-ar="تحقق">Judge</button>
                     </div>
 
@@ -270,5 +271,7 @@
 </footer>
 
 <script src="/static/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </body>
 </html>

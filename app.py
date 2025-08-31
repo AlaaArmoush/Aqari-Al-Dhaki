@@ -187,7 +187,6 @@ def root():
 
 class JudgeIn(PredictIn):
     listed_price: confloat(gt=0) = Field(..., description="السعر المعروض من المستخدم")
-    
 @app.post("/judge_price")
 def judge_price(payload: JudgeIn):
     try:
@@ -209,20 +208,30 @@ def judge_price(payload: JudgeIn):
                                     variant.طريقة_الدفع = payment
                                     variant.العقار_مرهون = mortgaged
                                     variants.append(build_model_input(variant))
-        
+
         all_df = pd.concat(variants, ignore_index=True)
-        predicted_prices = final_model.predict(all_df)
-        
-        price_min = predicted_prices.min()
-        price_max = predicted_prices.max()
-        price_mean = predicted_prices.mean()
+        predicted_prices = final_model.predict(all_df).astype(float)
 
-        listed = payload.listed_price
-        # Predicted price for this specific user input
+        price_min = float(np.min(predicted_prices))
+        price_max = float(np.max(predicted_prices))
+        price_mean = float(np.mean(predicted_prices))
+        price_median = float(np.median(predicted_prices))
+        price_q1 = float(np.percentile(predicted_prices, 25))
+        price_q3 = float(np.percentile(predicted_prices, 75))
+
+        hist_counts, hist_edges = np.histogram(predicted_prices, bins=10)
+        hist_counts = hist_counts.tolist()
+        hist_edges = hist_edges.tolist()
+
+        listed = float(payload.listed_price)
+
         df_input = build_model_input(payload)
-        predicted_price = final_model.predict(df_input)[0]
+        predicted_price = float(final_model.predict(df_input)[0])
 
-        if listed < max(price_min*0.9, price_mean * 0.7):
+        if payload.موقف_سيارات:
+            predicted_price *= 1.011
+
+        if listed < max(price_min * 0.9, price_mean * 0.7):
             judgment_key = "SUSPICIOUSLY_UNDERPRICED"
         elif listed < price_mean * 0.85:
             judgment_key = "FAIR_LOW"
@@ -231,22 +240,37 @@ def judge_price(payload: JudgeIn):
         elif listed < price_mean * 0.95:
             judgment_key = "GOOD_DEAL"
         elif listed < predicted_price:
-            judgment_key = "PREDICTED_PRICE" 
+            judgment_key = "PREDICTED_PRICE"
         elif listed <= price_max:
             judgment_key = "FAIR_PRICE"
         else:
             judgment_key = "OVERPRICED"
 
+        def r(x): 
+            try:
+                return float(round(x, 2))
+            except Exception:
+                return x
 
         return {
             "judgment_key": judgment_key,
-            "predicted_mean": float(round(price_mean, 2)),
-            "price_range": [float(round(price_min, 2)), float(round(price_max, 2))],
+            "listed_price": r(listed),
+            "predicted_price": r(predicted_price),         
+            "market_mean": r(price_mean),
+            "market_median": r(price_median),
+            "price_q1": r(price_q1),
+            "price_q3": r(price_q3),
+            "price_range": [r(price_min), r(price_max)],
+            "hist": {
+                "counts": hist_counts,   
+                "edges": hist_edges      
+            }
         }
 
     except Exception as e:
         logger.exception(f"Error in /judge_price: {e}")
         raise HTTPException(status_code=400, detail=str(e))
+
     
 if __name__ == "__main__":
     import uvicorn
