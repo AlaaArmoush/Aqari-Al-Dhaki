@@ -1,5 +1,6 @@
 # Aqari Al Dhaki – Apartment Price Prediction Platform
-<img width="1918" height="947" alt="image" src="https://github.com/user-attachments/assets/fac00396-41a2-43d6-a4e8-efa572dc7f26" />
+<img width="1918" height="950" alt="image" src="https://github.com/user-attachments/assets/3f1048f6-217c-4cde-9858-1d9e99c4d1b2" />
+
 
 Aqari Al Dhaki is an AI-powered platform designed to predict apartment prices in Palestinian cities. By leveraging machine learning models trained on apartment data, the platform provides price estimates and insights into the factors influencing apartment prices. It also helps users evaluate whether a listed price is fair, overpriced, or suspicious.
 
