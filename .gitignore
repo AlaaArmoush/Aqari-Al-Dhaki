@@ -5,4 +5,3 @@ apartments_final.csv
 __pycache__/
 *.py[cod]
 *$py.class
-model/*.pkl
