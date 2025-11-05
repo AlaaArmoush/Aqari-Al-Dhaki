@@ -20,7 +20,6 @@ CITIES_PATH = os.path.join(MODEL_DIR, "city_categories.pkl")
 logger = logging.getLogger("uvicorn.error")
 
 
-
 try:
     final_model = xgb.Booster()
     final_model.load_model(os.path.join(MODEL_DIR, "model_v2.json"))
@@ -33,7 +32,6 @@ try:
 except Exception as e:
     logger.exception("Failed to load model or metadata")
     raise RuntimeError(f"Failed to load model or metadata: {e}")
-
 
 TRAIN_KEYS = {
     "عدد_الغرف": "عدد الغرف",
