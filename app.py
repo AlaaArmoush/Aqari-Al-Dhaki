@@ -2,7 +2,8 @@ import os
 import joblib
 import logging
 from typing import Optional
-
+import xgboost as xgb
+import shap
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -18,13 +19,21 @@ CITIES_PATH = os.path.join(MODEL_DIR, "city_categories.pkl")
 
 logger = logging.getLogger("uvicorn.error")
 
+
+
 try:
-    final_model = joblib.load(MODEL_PATH)
+    final_model = xgb.Booster()
+    final_model.load_model(os.path.join(MODEL_DIR, "model_v2.json"))
+
     feature_columns = joblib.load(FEATURES_PATH)
     city_categories = joblib.load(CITIES_PATH)
+
+    explainer = shap.TreeExplainer(final_model)
+
 except Exception as e:
     logger.exception("Failed to load model or metadata")
     raise RuntimeError(f"Failed to load model or metadata: {e}")
+
 
 TRAIN_KEYS = {
     "عدد_الغرف": "عدد الغرف",
@@ -147,12 +156,12 @@ def group_shap_values(shap_values: np.ndarray, input_df: pd.DataFrame):
 def predict(payload: PredictIn):
     try:
         df_input = build_model_input(payload)
-        y_pred = final_model.predict(df_input)[0]
+        y_pred = final_model.predict(xgb.DMatrix(df_input))[0]
 
         if payload.موقف_سيارات:
             y_pred *= 1.011
 
-        shap_values = explainer(df_input)
+        shap_values = explainer(xgb.DMatrix(df_input))
         contribs = shap_values.values[0]
 
         grouped = group_shap_values(contribs, df_input)
@@ -210,7 +219,7 @@ def judge_price(payload: JudgeIn):
                                     variants.append(build_model_input(variant))
 
         all_df = pd.concat(variants, ignore_index=True)
-        predicted_prices = final_model.predict(all_df).astype(float)
+        predicted_prices = final_model.predict(xgb.DMatrix(all_df)).astype(float)
 
         price_min = float(np.min(predicted_prices))
         price_max = float(np.max(predicted_prices))
@@ -226,7 +235,8 @@ def judge_price(payload: JudgeIn):
         listed = float(payload.listed_price)
 
         df_input = build_model_input(payload)
-        predicted_price = float(final_model.predict(df_input)[0])
+        predicted_price = float(final_model.predict(xgb.DMatrix(df_input))[0])
+
 
         if payload.موقف_سيارات:
             predicted_price *= 1.011
