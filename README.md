@@ -31,7 +31,7 @@ Aqari Al Dhaki is an AI-powered platform designed to predict apartment prices in
    **On macOS / Linux**
    ```bash
    # create venv if it doesn't exist
-   python3 -m venv .venv
+   python3.13 -m venv .venv
    # activate
    source .venv/bin/activate
    ```
