@@ -1,4 +1,4 @@
-fastapi==0.116.1
+fastapi[standard]==0.116.1
 uvicorn[standard]==0.35.0
 pandas==2.3.2
 numpy==2.3.2
