@@ -52,8 +52,6 @@ body {
     line-height: 1.6;
     transition: all 0.3s ease;
     animation: fadeInUp 0.8s ease-out;
-    perspective: 2000px;
-    transform-style: preserve-3d;
     overflow-x: hidden;
 }
 
@@ -66,7 +64,6 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 0;
-    transform-style: preserve-3d;
     perspective: 1500px;
 }
 
@@ -279,7 +276,6 @@ body {
     backdrop-filter: blur(20px);
     animation: slideInRight 0.6s ease-out;
     box-shadow: 0 4px 12px var(--shadow-light);
-    transform-style: preserve-3d;
 }
 
 .header-content {
@@ -411,7 +407,6 @@ body {
     padding: 4rem 0;
     text-align: center;
     animation: fadeInUp 1s ease-out 0.2s both;
-    transform-style: preserve-3d;
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -455,7 +450,6 @@ body {
 
 .main {
     padding: 4rem 0;
-    transform-style: preserve-3d;
     position: relative;
 }
 
@@ -464,7 +458,6 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     align-items: start;
-    transform-style: preserve-3d;
 }
 
 .form-group {
@@ -1392,3 +1385,4 @@ select {
     color: var(--text-secondary);
     margin-top: 0.5rem;
 }
+
