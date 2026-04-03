@@ -42,6 +42,15 @@ class RealEstatePredictorApp {
 
         const judgePriceBtn = document.getElementById("judgePriceBtn");
         judgePriceBtn.addEventListener("click", () => this.judgePrice());
+
+        const listedPriceInput = document.getElementById("listedPriceInput");
+        listedPriceInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                this.judgePrice();
+            }
+        });
+
     }
 
     toggleTheme() {
