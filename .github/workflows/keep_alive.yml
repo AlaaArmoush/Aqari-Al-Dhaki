@@ -1,0 +1,25 @@
+name: keep space alive
+
+on:
+  schedule:
+  - cron: '0 */12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Ping Space
+        run: |
+          curl -I -A "Mozilla/5.0" https://alaaarmoush-aqari-al-dhaki.hf.space/
+
+      - name: Keepalive Workflow
+        uses: gautamkrishnar/keepalive-workflow@v2
+        with:
+          use_api: true
